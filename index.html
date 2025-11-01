@@ -39,18 +39,35 @@
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.5);
         }
+        /* Yeni ikon butonları için standart boyut ve görünüm */
+        .header-icon-button {
+             /* size-12 (48px) Tailwind'den geliyor */
+            @apply flex size-12 shrink-0 items-center justify-center text-[#0d141b] dark:text-gray-200 hover:text-primary dark:hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20 rounded-full transition-colors;
+        }
     </style>
 </head>
 <body class="font-display bg-background-light dark:bg-background-dark">
 <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
-    <div class="flex items-center p-4 pb-2 justify-between bg-background-light dark:bg-background-dark sticky top-0 z-10 shadow-sm">
+    <div class="flex items-center p-4 pb-2 justify-between bg-background-light dark:bg-background-dark sticky top-0 z-20 shadow-sm">
         <div class="flex size-12 shrink-0 items-center justify-center">
             <span class="material-symbols-outlined text-[#0d141b] dark:text-gray-200">directions_car</span>
         </div>
         <h1 class="text-[#0d141b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1">Araç Yönetim Paneli</h1>
-        <button id="toggle-dark-mode" class="flex size-12 shrink-0 items-center justify-center">
-             <span class="material-symbols-outlined text-[#0d141b] dark:text-gray-200">dark_mode</span>
-        </button>
+        
+        <div class="flex items-center gap-1">
+             
+            <button id="add-vehicle-button-icon" class="header-icon-button" aria-label="Yeni Araç Ekle">
+                <span class="material-symbols-outlined">add</span>
+            </button>
+            
+            <button id="import-vehicle-button-icon" class="header-icon-button" aria-label="Toplu Yükle (CSV)">
+                <span class="material-symbols-outlined">upload</span>
+            </button>
+
+            <button id="toggle-dark-mode" class="header-icon-button" aria-label="Temayı Değiştir">
+                 <span class="material-symbols-outlined">dark_mode</span>
+            </button>
+        </div>
     </div>
     
     <div class="px-4 py-3 sticky top-[68px] bg-background-light dark:bg-background-dark z-10 shadow-sm">
@@ -64,14 +81,6 @@
         </label>
     </div>
     
-    <div class="flex justify-stretch px-4 py-3">
-        <div class="flex flex-1 gap-3 flex-wrap justify-end">
-            <button id="add-vehicle-button" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] gap-2">
-                <span class="material-symbols-outlined !text-[20px]">add</span>
-                <span class="truncate">Yeni Araç Ekle</span>
-            </button>
-        </div>
-    </div>
     <h3 class="text-[#0d141b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Tüm Araçlar</h3>
     
     <div id="vehicle-list">
@@ -151,7 +160,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- 1. Sabitler ve Elementler ---
+        // --- 1. Sabitler ve Elementler (GÜNCELLENDİ) ---
         const VEHICLE_STORAGE_KEY = 'vehicle_management_data';
 
         const vehicleListContainer = document.getElementById('vehicle-list');
@@ -172,28 +181,24 @@
         const fuelInput = document.getElementById('fuel');
         const mileageInput = document.getElementById('mileage');
         
-        const addButton = document.getElementById('add-vehicle-button');
+        // **GÜNCELLENMİŞ Butonlar:** Yeni ikonlu butonların ID'leri kullanılıyor
+        const addButton = document.getElementById('add-vehicle-button-icon');
+        const importButton = document.getElementById('import-vehicle-button-icon'); 
         const cancelButton = document.getElementById('cancel-modal');
         const searchInput = document.getElementById('search-input'); 
 
         let currentPage = 1;
-        const itemsPerPage = 100; // Tüm araçları tek sayfada göstermek için 100 olarak bırakıldı.
+        const itemsPerPage = 100;
 
-        // --- 2. Veri Yönetimi (LocalStorage) ---
+        // --- 2. Veri Yönetimi (LocalStorage) (Aynı kaldı) ---
 
-        // DEĞİŞİKLİK: Başlangıç verisi tamamen gerçekçi 10 araç olarak güncellendi.
         function loadInitialData() {
             const data = localStorage.getItem(VEHICLE_STORAGE_KEY);
             
-            // Eğer veri zaten varsa (önceki eklemeleriniz dahil), buradan çıkar.
-            // NOT: Test verisi kaldırılsın diye "loadInitialData" çalışsa bile,
-            // daha önce eklediğiniz veriler "data" dolu olduğu için KALMAYACAKTIR.
-            // Test verisinin silinmesi için tarayıcıda LocalStorage'ı temizlemeniz gerekebilir.
             if (data) {
                 return;
             }
             
-            // Eğer veri YOKSA, varsayılan 10 aracı oluştur ve kaydet.
             const initialVehicles = [
                 { id: Date.now(), model: 'Ford Focus', plate: '34 ABC 123', department: 'Pazarlama', driver: 'Ahmet Yılmaz', type: 'Sedan', fuel: 'Benzin', mileage: 25000 },
                 { id: Date.now() + 1, model: 'Renault Clio', plate: '34 DEF 456', department: 'Satış', driver: 'Zeynep Kaya', type: 'Hatchback', fuel: 'Dizel', mileage: 15000 },
@@ -211,7 +216,6 @@
         }
 
         function getVehicles() {
-            // Her zaman en güncel veriyi çeker
             return JSON.parse(localStorage.getItem(VEHICLE_STORAGE_KEY) || '[]');
         }
 
@@ -274,7 +278,6 @@
             renderPagination(totalPages);
         }
 
-        // Sayfa numaraları ve kontrollü oklar ile sayfalandırma 
         function renderPagination(totalPages) {
             paginationContainer.innerHTML = '';
             if (totalPages <= 1) return; 
@@ -415,7 +418,83 @@
             applyFilterAndRender(); 
         });
 
+        // **GÜNCELLENMİŞ Buton olayları:** Yeni buton ID'leri kullanılır
         addButton.addEventListener('click', () => openModal('add'));
+        importButton.addEventListener('click', () => {
+             // Kullanıcının dosya seçmesi için bir dosya girdisi oluşturulur
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.csv';
+            fileInput.click();
+
+            fileInput.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    const csvData = event.target.result;
+                    try {
+                        const newVehicles = parseCSV(csvData);
+
+                        if (newVehicles.length === 0) {
+                            alert('CSV dosyası boş veya okunamadı.');
+                            return;
+                        }
+
+                        if (confirm(`${newVehicles.length} adet yeni araç sisteme eklenecektir. Onaylıyor musunuz?`)) {
+                            let existingVehicles = getVehicles();
+                            let vehiclesToAdd = [];
+                            let importCount = 0;
+                            let errorCount = 0;
+
+                            newVehicles.forEach(v => {
+                                // Basit bir doğrulama: Plaka ve Model gibi temel alanlar dolu mu?
+                                const isComplete = v.model && v.plate;
+                                
+                                if (isComplete) {
+                                    vehiclesToAdd.push({
+                                        id: Date.now() + vehiclesToAdd.length + Math.random(), // Benzersiz ID oluştur
+                                        model: v.model,
+                                        plate: v.plate,
+                                        department: v.department || 'Bilinmiyor',
+                                        driver: v.driver || 'Atanmamış',
+                                        type: v.type || 'Bilinmiyor',
+                                        fuel: v.fuel || 'Bilinmiyor',
+                                        mileage: parseInt(v.mileage) || 0 // Kilometreyi sayıya çevir
+                                    });
+                                    importCount++;
+                                } else {
+                                    errorCount++;
+                                }
+                            });
+
+                            // Var olan araçlara yeni araçları ekle
+                            existingVehicles = existingVehicles.concat(vehiclesToAdd);
+                            saveVehicles(existingVehicles);
+                            
+                            // Son sayfaya git ve listeyi güncelle
+                            const totalPages = Math.ceil(existingVehicles.length / itemsPerPage);
+                            currentPage = totalPages > 0 ? totalPages : 1; 
+                            applyFilterAndRender();
+
+                            let message = `${importCount} araç başarıyla yüklendi!`;
+                            if(errorCount > 0) {
+                                message += ` (${errorCount} satır eksik veri nedeniyle atlandı.)`;
+                            }
+                            alert(message);
+                        }
+                    } catch (error) {
+                        console.error("CSV okuma hatası:", error);
+                        alert(`Dosya formatında bir hata var: ${error.message}. Lütfen şu başlıkları kullanın: ${requiredFields.join(', ')}`);
+                    }
+                };
+
+                reader.readAsText(file);
+            };
+        });
+
         cancelButton.addEventListener('click', closeModal);
 
         // --- 5. Listeyi Yöneten Event Listener'lar (Aynı kaldı) ---
@@ -487,6 +566,56 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.classList.add(savedTheme);
         document.querySelector('#toggle-dark-mode .material-symbols-outlined').textContent = savedTheme === 'dark' ? 'light_mode' : 'dark_mode';
+
+
+        // ====================================================================
+        // --- 8. CSV TOPLU YÜKLEME İŞLEVSELLİĞİ (Aynı kaldı) ---
+        // ====================================================================
+
+        // Gerekli alanların (sütun başlıklarının) listesi. CSV'nizdeki başlıklar buna uymalıdır.
+        const requiredFields = ['model', 'plate', 'department', 'driver', 'type', 'fuel', 'mileage'];
+
+
+        /**
+         * Basit bir CSV çözümleyicisi (parser). İlk satırın başlık olduğunu varsayar.
+         */
+        function parseCSV(csv) {
+            const lines = csv.split('\n').filter(line => line.trim() !== '');
+            if (lines.length < 1) return [];
+
+            // Virgüle ve tırnak işaretlerine duyarlı başlık ayrıştırması
+            // Regex: ("([^"]*)"|([^,]*))(?:$|,)/g
+            // Bu, tırnak içindeki verileri ve virgüle kadar olanları yakalar
+            const headersMatch = lines[0].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+            if (!headersMatch) throw new Error("Başlık satırı okunamadı veya boş.");
+            
+            const headers = headersMatch.map(h => h.replace(/^"|"$/g, '').trim().toLowerCase());
+            
+            const data = [];
+
+            // Gerekli başlık kontrolü
+            const missingHeaders = requiredFields.filter(field => !headers.includes(field));
+            if (missingHeaders.length > 0) {
+                throw new Error(`Eksik Sütun Başlıkları: ${missingHeaders.join(', ')}`);
+            }
+
+            for (let i = 1; i < lines.length; i++) {
+                // Virgüle ve tırnak işaretlerine duyarlı satır ayrıştırması
+                const values = lines[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+                if (!values) continue;
+                
+                let obj = {};
+
+                headers.forEach((header, index) => {
+                    let value = values[index] ? values[index].replace(/^"|"$/g, '').trim() : ''; 
+                    obj[header] = value;
+                });
+
+                data.push(obj);
+            }
+            return data;
+        }
+
 
         // --- Başlangıç Yüklemesi ---
         loadInitialData();
