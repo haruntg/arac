@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html class="light" lang="tr">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Araç Yönetim Paneli - Aktif</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+        /* Modal Arka Planı */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+    <div class="flex items-center p-4 pb-2 justify-between bg-background-light dark:bg-background-dark sticky top-0 z-10 shadow-sm">
+        <div class="flex size-12 shrink-0 items-center justify-center">
+            <span class="material-symbols-outlined text-[#0d141b] dark:text-gray-200">directions_car</span>
+        </div>
+        <h1 class="text-[#0d141b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1">Araç Yönetim Paneli</h1>
+        <button id="toggle-dark-mode" class="flex size-12 shrink-0 items-center justify-center">
+             <span class="material-symbols-outlined text-[#0d141b] dark:text-gray-200">dark_mode</span>
+        </button>
+    </div>
+    <div class="px-4 py-3 sticky top-[68px] bg-background-light dark:bg-background-dark z-10 shadow-sm">
+        <label class="flex flex-col min-w-40 h-12 w-full">
+            <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+                <div class="text-slate-500 dark:text-slate-400 flex border-none bg-slate-200 dark:bg-slate-700 items-center justify-center pl-4 rounded-l-lg border-r-0">
+                    <span class="material-symbols-outlined">search</span>
+                </div>
+                <input id="search-input" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-[#0d141b] dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-200 dark:bg-slate-700 focus:border-none h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 pl-2 text-base font-normal leading-normal" placeholder="Plaka, model veya çalışan ara..." value=""/>
+            </div>
+        </label>
+    </div>
+    <div class="flex justify-stretch px-4 py-3">
+        <div class="flex flex-1 gap-3 flex-wrap justify-between">
+            <button id="filter-button" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-200 dark:bg-slate-700 text-[#0d141b] dark:text-white text-sm font-bold leading-normal tracking-[0.015em] gap-2">
+                <span class="material-symbols-outlined !text-[20px]">filter_list</span>
+                <span class="truncate">Filtrele</span>
+            </button>
+            <button id="add-vehicle-button" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] gap-2">
+                <span class="material-symbols-outlined !text-[20px]">add</span>
+                <span class="truncate">Yeni Araç Ekle</span>
+            </button>
+        </div>
+    </div>
+    <h3 class="text-[#0d141b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Tüm Araçlar</h3>
+    
+    <div id="vehicle-list">
+        </div>
+    
+    <div id="empty-state" class="hidden text-center p-8">
+        <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-6xl mb-4">no_crash</span>
+        <p class="text-slate-500 dark:text-slate-400">Gösterilecek araç bulunamadı.</p>
+    </div>
+
+    <div id="pagination" class="flex items-center justify-center p-6 gap-2">
+        </div>
+</div>
+
+<div id="vehicle-modal" class="fixed inset-0 hidden items-center justify-center z-50 modal-backdrop">
+    <div class="bg-background-light dark:bg-background-dark rounded-lg shadow-xl w-full max-w-md p-6 m-4">
+        <h3 id="modal-title" class="text-xl font-bold mb-4 text-[#0d141b] dark:text-white">Yeni Araç Ekle</h3>
+        <form id="vehicle-form">
+            <input type="hidden" id="vehicle-id">
+            
+            <div class="mb-4">
+                <label for="model" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Model Adı (Örn: Ford Focus)</label>
+                <input type="text" id="model" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+            </div>
+            
+            <div class="mb-4">
+                <label for="plate" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Plaka (Örn: 34 ABC 123)</label>
+                <input type="text" id="plate" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+            </div>
+            
+            <div class="mb-4">
+                <label for="department" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Departman (Örn: Pazarlama)</label>
+                <input type="text" id="department" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+            </div>
+            
+            <div class="mb-6">
+                <label for="driver" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Sürücü/Çalışan (Örn: Ahmet Yılmaz)</label>
+                <input type="text" id="driver" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+            </div>
+            
+            <div class="flex justify-end gap-3">
+                <button type="button" id="cancel-modal" class="px-4 py-2 text-sm font-bold rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">İptal</button>
+                <button type="submit" id="save-vehicle" class="px-4 py-2 text-sm font-bold rounded-lg bg-primary text-white hover:bg-primary/90">Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Sayfa yüklendiğinde çalışacak ana işlevler
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 1. Veri Yönetimi (LocalStorage) ---
+
+        const VEHICLE_STORAGE_KEY = 'vehicle_management_data';
+
+        // Varsayılan araçları yükle (Eğer daha önce veri kaydedilmemişse)
+        function loadInitialData() {
+            const data = localStorage.getItem(VEHICLE_STORAGE_KEY);
+            if (!data) {
+                const initialVehicles = [
+                    { id: Date.now(), model: 'Ford Focus', plate: '34 ABC 123', department: 'Pazarlama', driver: 'Ahmet Yılmaz' },
+                    { id: Date.now() + 1, model: 'Renault Clio', plate: '34 DEF 456', department: 'Satış', driver: 'Zeynep Kaya' },
+                    { id: Date.now() + 2, model: 'Volkswagen Passat', plate: '34 GHI 789', department: 'Yönetim', driver: 'Can Öztürk' },
+                    { id: Date.now() + 3, model: 'Fiat Egea', plate: '34 JKL 012', department: 'Teknik Servis', driver: 'Elif Sönmez' },
+                ];
+                localStorage.setItem(VEHICLE_STORAGE_KEY, JSON.stringify(initialVehicles));
+                return initialVehicles;
+            }
+            return JSON.parse(data);
+        }
+
+        // Tüm araçları LocalStorage'dan çeker
+        function getVehicles() {
+            return JSON.parse(localStorage.getItem(VEHICLE_STORAGE_KEY) || '[]');
+        }
+
+        // Araç listesini LocalStorage'a kaydeder
+        function saveVehicles(vehicles) {
+            localStorage.setItem(VEHICLE_STORAGE_KEY, JSON.stringify(vehicles));
+        }
+
+        // --- 2. Çizim Fonksiyonları ---
+
+        const vehicleListContainer = document.getElementById('vehicle-list');
+        const emptyState = document.getElementById('empty-state');
+        const paginationContainer = document.getElementById('pagination');
+
+        let currentPage = 1;
+        const itemsPerPage = 5; // Sayfadaki araç sayısı
+
+        // Bir araç için HTML liste öğesi oluşturur
+        function createVehicleListItem(vehicle) {
+            const div = document.createElement('div');
+            div.className = 'flex gap-4 bg-background-light dark:bg-background-dark px-4 py-3 justify-between items-center border-b border-slate-200 dark:border-slate-700';
+            div.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <div class="text-[#0d141b] dark:text-white flex items-center justify-center rounded-lg bg-slate-200 dark:bg-slate-700 shrink-0 size-12">
+                        <span class="material-symbols-outlined">directions_car</span>
+                    </div>
+                    <div class="flex flex-1 flex-col justify-center">
+                        <p class="text-[#0d141b] dark:text-white text-base font-medium leading-normal">${vehicle.model}</p>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">${vehicle.department} - ${vehicle.driver}</p>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">${vehicle.plate}</p>
+                    </div>
+                </div>
+                <div class="flex shrink-0 gap-2">
+                    <button data-id="${vehicle.id}" class="edit-btn text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary flex size-9 items-center justify-center rounded-full hover:bg-primary/10 dark:hover:bg-primary/20">
+                        <span class="material-symbols-outlined !text-[20px]">edit</span>
+                    </button>
+                    <button data-id="${vehicle.id}" class="delete-btn text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-500 flex size-9 items-center justify-center rounded-full hover:bg-red-500/10 dark:hover:bg-red-500/20">
+                        <span class="material-symbols-outlined !text-[20px]">delete</span>
+                    </button>
+                </div>
+            `;
+            return div;
+        }
+        
+        // Araç listesini arayüze çizer
+        function renderVehicles(vehicles) {
+            vehicleListContainer.innerHTML = '';
+            
+            if (vehicles.length === 0) {
+                emptyState.classList.remove('hidden');
+                renderPagination(0);
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            
+            const totalPages = Math.ceil(vehicles.length / itemsPerPage);
+            
+            // Sayfalandırma mantığı
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const vehiclesOnPage = vehicles.slice(startIndex, endIndex);
+
+            vehiclesOnPage.forEach(vehicle => {
+                vehicleListContainer.appendChild(createVehicleListItem(vehicle));
+            });
+
+            // Butonlara event listener'ları ekle
+            addVehicleEventListeners();
+            
+            // Sayfalandırmayı çiz
+            renderPagination(totalPages);
+        }
+
+        // Sayfalandırmayı çizer
+        function renderPagination(totalPages) {
+            paginationContainer.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            // Önceki Sayfa butonu
+            const prevButton = createPaginationButton('chevron_left', currentPage > 1);
+            prevButton.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    applyFilterAndRender();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+            paginationContainer.appendChild(prevButton);
+
+            // Sayfa numarası butonları
+            for (let i = 1; i <= totalPages; i++) {
+                const button = createPaginationButton(i, true, i === currentPage);
+                button.onclick = () => {
+                    currentPage = i;
+                    applyFilterAndRender();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+                paginationContainer.appendChild(button);
+            }
+
+            // Sonraki Sayfa butonu
+            const nextButton = createPaginationButton('chevron_right', currentPage < totalPages);
+            nextButton.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    applyFilterAndRender();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+            paginationContainer.appendChild(nextButton);
+        }
+
+        // Sayfalandırma butonu oluşturma yardımcı fonksiyonu
+        function createPaginationButton(content, isEnabled, isActive = false) {
+            const button = document.createElement('button');
+            button.className = `flex size-9 items-center justify-center rounded-lg font-bold text-sm ${
+                isActive ? 'bg-primary text-white' : 
+                isEnabled ? 'text-slate-500 dark:text-slate-400 hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary dark:hover:text-primary' : 
+                'text-slate-300 dark:text-slate-600 cursor-not-allowed'
+            }`;
+            if (content.startsWith('chevron')) {
+                button.innerHTML = `<span class="material-symbols-outlined !text-[20px]">${content}</span>`;
+            } else {
+                button.textContent = content;
+            }
+            button.disabled = !isEnabled;
+            return button;
+        }
+
+        // --- 3. Modal ve Form Yönetimi ---
+
+        const modal = document.getElementById('vehicle-modal');
+        const form = document.getElementById('vehicle-form');
+        const modalTitle = document.getElementById('modal-title');
+        const vehicleId = document.getElementById('vehicle-id');
+        const modelInput = document.getElementById('model');
+        const plateInput = document.getElementById('plate');
+        const departmentInput = document.getElementById('department');
+        const driverInput = document.getElementById('driver');
+        const addButton = document.getElementById('add-vehicle-button');
+        const cancelButton = document.getElementById('cancel-modal');
+
+        // Modalı gösterir
+        function openModal(mode = 'add', vehicle = null) {
+            modal.style.display = 'flex';
+            if (mode === 'add') {
+                modalTitle.textContent = 'Yeni Araç Ekle';
+                form.reset();
+                vehicleId.value = '';
+            } else {
+                modalTitle.textContent = 'Aracı Düzenle';
+                vehicleId.value = vehicle.id;
+                modelInput.value = vehicle.model;
+                plateInput.value = vehicle.plate;
+                departmentInput.value = vehicle.department;
+                driverInput.value = vehicle.driver;
+            }
+        }
+
+        // Modalı gizler
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // Form gönderimi (Ekle/Düzenle)
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const vehicles = getVehicles();
+            
+            const newVehicle = {
+                model: modelInput.value,
+                plate: plateInput.value,
+                department: departmentInput.value,
+                driver: driverInput.value
+            };
+            
+            if (vehicleId.value) {
+                // Düzenle
+                const id = parseInt(vehicleId.value);
+                const index = vehicles.findIndex(v => v.id === id);
+                if (index !== -1) {
+                    vehicles[index] = { ...vehicles[index], ...newVehicle };
+                }
+            } else {
+                // Ekle
+                newVehicle.id = Date.now();
+                vehicles.push(newVehicle);
+            }
+            
+            saveVehicles(vehicles);
+            closeModal();
+            applyFilterAndRender(); // Listeyi güncelle
+        });
+
+        // Buton event listener'ları (Ekleme/İptal)
+        addButton.addEventListener('click', () => openModal('add'));
+        cancelButton.addEventListener('click', closeModal);
+
+        // --- 4. Listeyi Yöneten Event Listener'lar ---
+
+        function addVehicleEventListeners() {
+            // Düzenle Butonları
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.onclick = (e) => {
+                    const id = parseInt(e.currentTarget.dataset.id);
+                    const vehicle = getVehicles().find(v => v.id === id);
+                    if (vehicle) {
+                        openModal('edit', vehicle);
+                    }
+                };
+            });
+
+            // Silme Butonları
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.onclick = (e) => {
+                    const id = parseInt(e.currentTarget.dataset.id);
+                    if (confirm('Bu aracı silmek istediğinizden emin misiniz?')) {
+                        let vehicles = getVehicles();
+                        vehicles = vehicles.filter(v => v.id !== id);
+                        saveVehicles(vehicles);
+                        applyFilterAndRender(); // Listeyi güncelle
+                    }
+                };
+            });
+        }
+
+        // --- 5. Arama ve Filtreleme ---
+
+        const searchInput = document.getElementById('search-input');
+        
+        function applyFilterAndRender() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const allVehicles = getVehicles();
+            
+            const filteredVehicles = allVehicles.filter(vehicle => {
+                // Plaka, model, departman veya sürücüde arama yapar
+                return vehicle.model.toLowerCase().includes(searchTerm) ||
+                       vehicle.plate.toLowerCase().includes(searchTerm) ||
+                       vehicle.department.toLowerCase().includes(searchTerm) ||
+                       vehicle.driver.toLowerCase().includes(searchTerm);
+            });
+            
+            // Arama/filtreleme yapıldığında sayfayı 1'e sıfırla
+            if (currentPage * itemsPerPage > filteredVehicles.length && filteredVehicles.length > 0) {
+                 currentPage = Math.ceil(filteredVehicles.length / itemsPerPage);
+            } else if (filteredVehicles.length > 0) {
+                 // Sayfanın geçerli olup olmadığını kontrol et
+            } else {
+                currentPage = 1;
+            }
+
+            renderVehicles(filteredVehicles);
+        }
+
+        // Arama kutusunda değişiklik olduğunda filtrelemeyi uygula
+        searchInput.addEventListener('input', () => {
+             currentPage = 1; // Yeni arama başladığında her zaman ilk sayfaya dön
+             applyFilterAndRender();
+        });
+
+        // "Filtrele" butonu (Şimdilik basit bir uyarı veriyor)
+        document.getElementById('filter-button').addEventListener('click', () => {
+            alert('Gelişmiş Filtreleme menüsü açılacak... (Şu an sadece arama aktif)');
+        });
+
+        // --- 6. Ekstra İşlevsellik ---
+        
+        // Tema değiştirme
+        document.getElementById('toggle-dark-mode').addEventListener('click', () => {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            // İkonu da değiştir
+            const icon = document.querySelector('#toggle-dark-mode .material-symbols-outlined');
+            icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+        });
+
+        // Kaydedilen temayı yükle
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.classList.add(savedTheme);
+        document.querySelector('#toggle-dark-mode .material-symbols-outlined').textContent = savedTheme === 'dark' ? 'light_mode' : 'dark_mode';
+
+
+        // --- Başlangıç Yüklemesi ---
+        loadInitialData(); // Başlangıç verilerini yükle
+        applyFilterAndRender(); // Tüm araçları arayüze çiz
+    });
+</script>
+
+</body>
+</html>
