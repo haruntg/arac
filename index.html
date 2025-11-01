@@ -58,7 +58,7 @@
                 <div class="text-slate-500 dark:text-slate-400 flex border-none bg-slate-200 dark:bg-slate-700 items-center justify-center pl-4 rounded-l-lg border-r-0">
                     <span class="material-symbols-outlined">search</span>
                 </div>
-                <input id="search-input" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-[#0d141b] dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-200 dark:bg-slate-700 focus:border-none h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 pl-2 text-base font-normal leading-normal" placeholder="Plaka, model veya çalışan ara..." value=""/>
+                <input id="search-input" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-[#0d141b] dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-200 dark:bg-slate-700 focus:border-none h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 pl-2 text-base font-normal leading-normal" placeholder="Plaka, model, tip veya çalışan ara..." value=""/>
             </div>
         </label>
     </div>
@@ -77,7 +77,7 @@
     <h3 class="text-[#0d141b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Tüm Araçlar</h3>
     
     <div id="vehicle-list">
-        </div>
+    </div>
     
     <div id="empty-state" class="hidden text-center p-8">
         <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-6xl mb-4">no_crash</span>
@@ -85,7 +85,7 @@
     </div>
 
     <div id="pagination" class="flex items-center justify-center p-6 gap-2">
-        </div>
+    </div>
 </div>
 
 <div id="vehicle-modal" class="fixed inset-0 hidden items-center justify-center z-50 modal-backdrop">
@@ -103,15 +103,44 @@
                 <label for="plate" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Plaka (Örn: 34 ABC 123)</label>
                 <input type="text" id="plate" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
             </div>
+
+            <div class="mb-4">
+                <label for="type" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Araç Tipi</label>
+                <select id="type" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    <option value="">Seçiniz</option>
+                    <option value="Sedan">Sedan</option>
+                    <option value="Hatchback">Hatchback</option>
+                    <option value="Station Wagon">Station Wagon</option>
+                    <option value="SUV">SUV</option>
+                    <option value="Kamyonet">Kamyonet</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="fuel" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Yakıt Tipi</label>
+                <select id="fuel" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    <option value="">Seçiniz</option>
+                    <option value="Benzin">Benzin</option>
+                    <option value="Dizel">Dizel</option>
+                    <option value="LPG">LPG</option>
+                    <option value="Elektrik">Elektrik</option>
+                    <option value="Hibrit">Hibrit</option>
+                </select>
+            </div>
             
             <div class="mb-4">
                 <label for="department" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Departman (Örn: Pazarlama)</label>
                 <input type="text" id="department" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
             </div>
             
-            <div class="mb-6">
+            <div class="mb-4">
                 <label for="driver" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Sürücü/Çalışan (Örn: Ahmet Yılmaz)</label>
                 <input type="text" id="driver" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+            </div>
+
+            <div class="mb-6">
+                <label for="mileage" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Kilometre (km)</label>
+                <input type="number" id="mileage" min="0" value="0" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
             </div>
             
             <div class="flex justify-end gap-3">
@@ -123,21 +152,26 @@
 </div>
 
 <script>
-    // Sayfa yüklendiğinde çalışacak ana işlevler
     document.addEventListener('DOMContentLoaded', () => {
         // --- 1. Veri Yönetimi (LocalStorage) ---
 
         const VEHICLE_STORAGE_KEY = 'vehicle_management_data';
+
+        // Yeni giriş alanlarını tanımla
+        const typeInput = document.getElementById('type');
+        const fuelInput = document.getElementById('fuel');
+        const mileageInput = document.getElementById('mileage');
 
         // Varsayılan araçları yükle (Eğer daha önce veri kaydedilmemişse)
         function loadInitialData() {
             const data = localStorage.getItem(VEHICLE_STORAGE_KEY);
             if (!data) {
                 const initialVehicles = [
-                    { id: Date.now(), model: 'Ford Focus', plate: '34 ABC 123', department: 'Pazarlama', driver: 'Ahmet Yılmaz' },
-                    { id: Date.now() + 1, model: 'Renault Clio', plate: '34 DEF 456', department: 'Satış', driver: 'Zeynep Kaya' },
-                    { id: Date.now() + 2, model: 'Volkswagen Passat', plate: '34 GHI 789', department: 'Yönetim', driver: 'Can Öztürk' },
-                    { id: Date.now() + 3, model: 'Fiat Egea', plate: '34 JKL 012', department: 'Teknik Servis', driver: 'Elif Sönmez' },
+                    { id: Date.now(), model: 'Ford Focus', plate: '34 ABC 123', department: 'Pazarlama', driver: 'Ahmet Yılmaz', type: 'Sedan', fuel: 'Benzin', mileage: 25000 },
+                    { id: Date.now() + 1, model: 'Renault Clio', plate: '34 DEF 456', department: 'Satış', driver: 'Zeynep Kaya', type: 'Hatchback', fuel: 'Dizel', mileage: 15000 },
+                    { id: Date.now() + 2, model: 'VW Passat', plate: '34 GHI 789', department: 'Yönetim', driver: 'Can Öztürk', type: 'Sedan', fuel: 'Hibrit', mileage: 5000 },
+                    { id: Date.now() + 3, model: 'Fiat Egea', plate: '34 JKL 012', department: 'Teknik Servis', driver: 'Elif Sönmez', type: 'Sedan', fuel: 'LPG', mileage: 45000 },
+                    { id: Date.now() + 4, model: 'Nissan Qashqai', plate: '34 MNO 567', department: 'Satış', driver: 'Burak Demir', type: 'SUV', fuel: 'Dizel', mileage: 32000 },
                 ];
                 localStorage.setItem(VEHICLE_STORAGE_KEY, JSON.stringify(initialVehicles));
                 return initialVehicles;
@@ -174,9 +208,11 @@
                         <span class="material-symbols-outlined">directions_car</span>
                     </div>
                     <div class="flex flex-1 flex-col justify-center">
-                        <p class="text-[#0d141b] dark:text-white text-base font-medium leading-normal">${vehicle.model}</p>
+                        <p class="text-[#0d141b] dark:text-white text-base font-medium leading-normal">${vehicle.model} <span class="text-slate-500 dark:text-slate-400 text-sm">(${vehicle.type})</span></p>
                         <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">${vehicle.department} - ${vehicle.driver}</p>
-                        <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">${vehicle.plate}</p>
+                        <p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-normal">
+                            Plaka: ${vehicle.plate} • Yakıt: ${vehicle.fuel} • Km: ${vehicle.mileage.toLocaleString('tr-TR')}
+                        </p>
                     </div>
                 </div>
                 <div class="flex shrink-0 gap-2">
@@ -297,6 +333,10 @@
                 modalTitle.textContent = 'Yeni Araç Ekle';
                 form.reset();
                 vehicleId.value = '';
+                // Varsayılan değerleri ayarla
+                mileageInput.value = 0;
+                typeInput.value = '';
+                fuelInput.value = '';
             } else {
                 modalTitle.textContent = 'Aracı Düzenle';
                 vehicleId.value = vehicle.id;
@@ -304,6 +344,11 @@
                 plateInput.value = vehicle.plate;
                 departmentInput.value = vehicle.department;
                 driverInput.value = vehicle.driver;
+                
+                // Yeni alanları doldur
+                typeInput.value = vehicle.type || '';
+                fuelInput.value = vehicle.fuel || '';
+                mileageInput.value = vehicle.mileage || 0;
             }
         }
 
@@ -317,11 +362,15 @@
             e.preventDefault();
             const vehicles = getVehicles();
             
+            // Yeni alanları da içeren araç nesnesi
             const newVehicle = {
                 model: modelInput.value,
                 plate: plateInput.value,
                 department: departmentInput.value,
-                driver: driverInput.value
+                driver: driverInput.value,
+                type: typeInput.value,
+                fuel: fuelInput.value,
+                mileage: parseInt(mileageInput.value) || 0 // Sayı olarak kaydet
             };
             
             if (vehicleId.value) {
@@ -383,19 +432,19 @@
             const allVehicles = getVehicles();
             
             const filteredVehicles = allVehicles.filter(vehicle => {
-                // Plaka, model, departman veya sürücüde arama yapar
+                // Plaka, model, departman, sürücü, TİP veya YAKIT'ta arama yapar
                 return vehicle.model.toLowerCase().includes(searchTerm) ||
                        vehicle.plate.toLowerCase().includes(searchTerm) ||
                        vehicle.department.toLowerCase().includes(searchTerm) ||
-                       vehicle.driver.toLowerCase().includes(searchTerm);
+                       vehicle.driver.toLowerCase().includes(searchTerm) ||
+                       (vehicle.type && vehicle.type.toLowerCase().includes(searchTerm)) ||
+                       (vehicle.fuel && vehicle.fuel.toLowerCase().includes(searchTerm));
             });
             
-            // Arama/filtreleme yapıldığında sayfayı 1'e sıfırla
+            // Sayfa yönetim mantığı
             if (currentPage * itemsPerPage > filteredVehicles.length && filteredVehicles.length > 0) {
                  currentPage = Math.ceil(filteredVehicles.length / itemsPerPage);
-            } else if (filteredVehicles.length > 0) {
-                 // Sayfanın geçerli olup olmadığını kontrol et
-            } else {
+            } else if (filteredVehicles.length == 0) {
                 currentPage = 1;
             }
 
@@ -404,13 +453,13 @@
 
         // Arama kutusunda değişiklik olduğunda filtrelemeyi uygula
         searchInput.addEventListener('input', () => {
-             currentPage = 1; // Yeni arama başladığında her zaman ilk sayfaya dön
+             currentPage = 1;
              applyFilterAndRender();
         });
 
         // "Filtrele" butonu (Şimdilik basit bir uyarı veriyor)
         document.getElementById('filter-button').addEventListener('click', () => {
-            alert('Gelişmiş Filtreleme menüsü açılacak... (Şu an sadece arama aktif)');
+            alert('Gelişmiş Filtreleme menüsü açılacak... Şu an arama; Plaka, Model, Çalışan, Departman, Tip ve Yakıt alanlarında çalışıyor.');
         });
 
         // --- 6. Ekstra İşlevsellik ---
@@ -421,7 +470,6 @@
             html.classList.toggle('dark');
             const isDark = html.classList.contains('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            // İkonu da değiştir
             const icon = document.querySelector('#toggle-dark-mode .material-symbols-outlined');
             icon.textContent = isDark ? 'light_mode' : 'dark_mode';
         });
@@ -433,8 +481,8 @@
 
 
         // --- Başlangıç Yüklemesi ---
-        loadInitialData(); // Başlangıç verilerini yükle
-        applyFilterAndRender(); // Tüm araçları arayüze çiz
+        loadInitialData();
+        applyFilterAndRender();
     });
 </script>
 
