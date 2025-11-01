@@ -52,22 +52,20 @@
              <span class="material-symbols-outlined text-[#0d141b] dark:text-gray-200">dark_mode</span>
         </button>
     </div>
+    
     <div class="px-4 py-3 sticky top-[68px] bg-background-light dark:bg-background-dark z-10 shadow-sm">
         <label class="flex flex-col min-w-40 h-12 w-full">
             <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
                 <div class="text-slate-500 dark:text-slate-400 flex border-none bg-slate-200 dark:bg-slate-700 items-center justify-center pl-4 rounded-l-lg border-r-0">
                     <span class="material-symbols-outlined">search</span>
                 </div>
-                <input id="search-input" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-[#0d141b] dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-200 dark:bg-slate-700 focus:border-none h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 pl-2 text-base font-normal leading-normal" placeholder="Plaka, model, tip veya çalışan ara..." value=""/>
+                <input id="search-input" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-[#0d141b] dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-200 dark:bg-slate-700 focus:border-none h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 pl-2 text-base font-normal leading-normal" placeholder="Plaka, model, tip veya çalışan ara..."/>
             </div>
         </label>
     </div>
+    
     <div class="flex justify-stretch px-4 py-3">
-        <div class="flex flex-1 gap-3 flex-wrap justify-between">
-            <button id="filter-button" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-200 dark:bg-slate-700 text-[#0d141b] dark:text-white text-sm font-bold leading-normal tracking-[0.015em] gap-2">
-                <span class="material-symbols-outlined !text-[20px]">filter_list</span>
-                <span class="truncate">Filtrele</span>
-            </button>
+        <div class="flex flex-1 gap-3 flex-wrap justify-end">
             <button id="add-vehicle-button" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] gap-2">
                 <span class="material-symbols-outlined !text-[20px]">add</span>
                 <span class="truncate">Yeni Araç Ekle</span>
@@ -153,52 +151,76 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- 1. Veri Yönetimi (LocalStorage) ---
-
+        // --- 1. Sabitler ve Elementler ---
         const VEHICLE_STORAGE_KEY = 'vehicle_management_data';
-
-        // Yeni giriş alanlarını tanımla
-        const typeInput = document.getElementById('type');
-        const fuelInput = document.getElementById('fuel');
-        const mileageInput = document.getElementById('mileage');
-
-        // Varsayılan araçları yükle (Eğer daha önce veri kaydedilmemişse)
-        function loadInitialData() {
-            const data = localStorage.getItem(VEHICLE_STORAGE_KEY);
-            if (!data) {
-                const initialVehicles = [
-                    { id: Date.now(), model: 'Ford Focus', plate: '34 ABC 123', department: 'Pazarlama', driver: 'Ahmet Yılmaz', type: 'Sedan', fuel: 'Benzin', mileage: 25000 },
-                    { id: Date.now() + 1, model: 'Renault Clio', plate: '34 DEF 456', department: 'Satış', driver: 'Zeynep Kaya', type: 'Hatchback', fuel: 'Dizel', mileage: 15000 },
-                    { id: Date.now() + 2, model: 'VW Passat', plate: '34 GHI 789', department: 'Yönetim', driver: 'Can Öztürk', type: 'Sedan', fuel: 'Hibrit', mileage: 5000 },
-                    { id: Date.now() + 3, model: 'Fiat Egea', plate: '34 JKL 012', department: 'Teknik Servis', driver: 'Elif Sönmez', type: 'Sedan', fuel: 'LPG', mileage: 45000 },
-                    { id: Date.now() + 4, model: 'Nissan Qashqai', plate: '34 MNO 567', department: 'Satış', driver: 'Burak Demir', type: 'SUV', fuel: 'Dizel', mileage: 32000 },
-                ];
-                localStorage.setItem(VEHICLE_STORAGE_KEY, JSON.stringify(initialVehicles));
-                return initialVehicles;
-            }
-            return JSON.parse(data);
-        }
-
-        // Tüm araçları LocalStorage'dan çeker
-        function getVehicles() {
-            return JSON.parse(localStorage.getItem(VEHICLE_STORAGE_KEY) || '[]');
-        }
-
-        // Araç listesini LocalStorage'a kaydeder
-        function saveVehicles(vehicles) {
-            localStorage.setItem(VEHICLE_STORAGE_KEY, JSON.stringify(vehicles));
-        }
-
-        // --- 2. Çizim Fonksiyonları ---
 
         const vehicleListContainer = document.getElementById('vehicle-list');
         const emptyState = document.getElementById('empty-state');
         const paginationContainer = document.getElementById('pagination');
+        
+        const modal = document.getElementById('vehicle-modal');
+        const form = document.getElementById('vehicle-form');
+        const modalTitle = document.getElementById('modal-title');
+        
+        // Form alanları
+        const vehicleId = document.getElementById('vehicle-id');
+        const modelInput = document.getElementById('model');
+        const plateInput = document.getElementById('plate');
+        const departmentInput = document.getElementById('department');
+        const driverInput = document.getElementById('driver');
+        const typeInput = document.getElementById('type');
+        const fuelInput = document.getElementById('fuel');
+        const mileageInput = document.getElementById('mileage');
+        
+        const addButton = document.getElementById('add-vehicle-button');
+        const cancelButton = document.getElementById('cancel-modal');
+        const searchInput = document.getElementById('search-input'); 
 
         let currentPage = 1;
-        const itemsPerPage = 5; // Sayfadaki araç sayısı
+        const itemsPerPage = 100; // Tüm araçları tek sayfada göstermek için 100 olarak bırakıldı.
 
-        // Bir araç için HTML liste öğesi oluşturur
+        // --- 2. Veri Yönetimi (LocalStorage) ---
+
+        // DEĞİŞİKLİK: Başlangıç verisi tamamen gerçekçi 10 araç olarak güncellendi.
+        function loadInitialData() {
+            const data = localStorage.getItem(VEHICLE_STORAGE_KEY);
+            
+            // Eğer veri zaten varsa (önceki eklemeleriniz dahil), buradan çıkar.
+            // NOT: Test verisi kaldırılsın diye "loadInitialData" çalışsa bile,
+            // daha önce eklediğiniz veriler "data" dolu olduğu için KALMAYACAKTIR.
+            // Test verisinin silinmesi için tarayıcıda LocalStorage'ı temizlemeniz gerekebilir.
+            if (data) {
+                return;
+            }
+            
+            // Eğer veri YOKSA, varsayılan 10 aracı oluştur ve kaydet.
+            const initialVehicles = [
+                { id: Date.now(), model: 'Ford Focus', plate: '34 ABC 123', department: 'Pazarlama', driver: 'Ahmet Yılmaz', type: 'Sedan', fuel: 'Benzin', mileage: 25000 },
+                { id: Date.now() + 1, model: 'Renault Clio', plate: '34 DEF 456', department: 'Satış', driver: 'Zeynep Kaya', type: 'Hatchback', fuel: 'Dizel', mileage: 15000 },
+                { id: Date.now() + 2, model: 'VW Passat', plate: '34 GHI 789', department: 'Yönetim', driver: 'Can Öztürk', type: 'Sedan', fuel: 'Hibrit', mileage: 5000 },
+                { id: Date.now() + 3, model: 'Fiat Egea', plate: '34 JKL 012', department: 'Teknik Servis', driver: 'Elif Sönmez', type: 'Sedan', fuel: 'LPG', mileage: 45000 },
+                { id: Date.now() + 4, model: 'Nissan Qashqai', plate: '34 MNO 567', department: 'Satış', driver: 'Burak Demir', type: 'SUV', fuel: 'Dizel', mileage: 32000 },
+                { id: Date.now() + 5, model: 'Opel Astra', plate: '06 XYZ 999', department: 'Muhasebe', driver: 'Ayşe Çelik', type: 'Hatchback', fuel: 'Benzin', mileage: 18000 },
+                { id: Date.now() + 6, model: 'Peugeot 3008', plate: '16 AB 500', department: 'İnsan Kaynakları', driver: 'Mehmet Yücel', type: 'SUV', fuel: 'Dizel', mileage: 12000 },
+                { id: Date.now() + 7, model: 'Honda Civic', plate: '41 CDE 101', department: 'Pazarlama', driver: 'Gizem Aydın', type: 'Sedan', fuel: 'Hibrit', mileage: 8000 },
+                { id: Date.now() + 8, model: 'Toyota Corolla', plate: '35 FGH 202', department: 'Yönetim', driver: 'Ali Veli', type: 'Sedan', fuel: 'LPG', mileage: 60000 },
+                { id: Date.now() + 9, model: 'Hyundai i20', plate: '01 JKL 303', department: 'Satış', driver: 'Deniz Aktaş', type: 'Hatchback', fuel: 'Benzin', mileage: 22000 },
+            ];
+
+            localStorage.setItem(VEHICLE_STORAGE_KEY, JSON.stringify(initialVehicles));
+        }
+
+        function getVehicles() {
+            // Her zaman en güncel veriyi çeker
+            return JSON.parse(localStorage.getItem(VEHICLE_STORAGE_KEY) || '[]');
+        }
+
+        function saveVehicles(vehicles) {
+            localStorage.setItem(VEHICLE_STORAGE_KEY, JSON.stringify(vehicles));
+        }
+
+        // --- 3. Çizim Fonksiyonları (Aynı kaldı) ---
+
         function createVehicleListItem(vehicle) {
             const div = document.createElement('div');
             div.className = 'flex gap-4 bg-background-light dark:bg-background-dark px-4 py-3 justify-between items-center border-b border-slate-200 dark:border-slate-700';
@@ -227,7 +249,6 @@
             return div;
         }
         
-        // Araç listesini arayüze çizer
         function renderVehicles(vehicles) {
             vehicleListContainer.innerHTML = '';
             
@@ -241,7 +262,6 @@
             
             const totalPages = Math.ceil(vehicles.length / itemsPerPage);
             
-            // Sayfalandırma mantığı
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             const vehiclesOnPage = vehicles.slice(startIndex, endIndex);
@@ -250,19 +270,15 @@
                 vehicleListContainer.appendChild(createVehicleListItem(vehicle));
             });
 
-            // Butonlara event listener'ları ekle
             addVehicleEventListeners();
-            
-            // Sayfalandırmayı çiz
             renderPagination(totalPages);
         }
 
-        // Sayfalandırmayı çizer
+        // Sayfa numaraları ve kontrollü oklar ile sayfalandırma 
         function renderPagination(totalPages) {
             paginationContainer.innerHTML = '';
-            if (totalPages <= 1) return;
-
-            // Önceki Sayfa butonu
+            if (totalPages <= 1) return; 
+            
             const prevButton = createPaginationButton('chevron_left', currentPage > 1);
             prevButton.onclick = () => {
                 if (currentPage > 1) {
@@ -273,7 +289,6 @@
             };
             paginationContainer.appendChild(prevButton);
 
-            // Sayfa numarası butonları
             for (let i = 1; i <= totalPages; i++) {
                 const button = createPaginationButton(i, true, i === currentPage);
                 button.onclick = () => {
@@ -284,7 +299,6 @@
                 paginationContainer.appendChild(button);
             }
 
-            // Sonraki Sayfa butonu
             const nextButton = createPaginationButton('chevron_right', currentPage < totalPages);
             nextButton.onclick = () => {
                 if (currentPage < totalPages) {
@@ -296,7 +310,6 @@
             paginationContainer.appendChild(nextButton);
         }
 
-        // Sayfalandırma butonu oluşturma yardımcı fonksiyonu
         function createPaginationButton(content, isEnabled, isActive = false) {
             const button = document.createElement('button');
             button.className = `flex size-9 items-center justify-center rounded-lg font-bold text-sm ${
@@ -309,33 +322,21 @@
             } else {
                 button.textContent = content;
             }
-            button.disabled = !isEnabled;
+            button.disabled = !isEnabled; 
             return button;
         }
 
-        // --- 3. Modal ve Form Yönetimi ---
+        // --- 4. Modal ve Form Yönetimi (Aynı kaldı) ---
 
-        const modal = document.getElementById('vehicle-modal');
-        const form = document.getElementById('vehicle-form');
-        const modalTitle = document.getElementById('modal-title');
-        const vehicleId = document.getElementById('vehicle-id');
-        const modelInput = document.getElementById('model');
-        const plateInput = document.getElementById('plate');
-        const departmentInput = document.getElementById('department');
-        const driverInput = document.getElementById('driver');
-        const addButton = document.getElementById('add-vehicle-button');
-        const cancelButton = document.getElementById('cancel-modal');
-
-        // Modalı gösterir
         function openModal(mode = 'add', vehicle = null) {
+            form.reset(); 
             modal.style.display = 'flex';
+            
             if (mode === 'add') {
                 modalTitle.textContent = 'Yeni Araç Ekle';
-                form.reset();
                 vehicleId.value = '';
-                // Varsayılan değerleri ayarla
                 mileageInput.value = 0;
-                typeInput.value = '';
+                typeInput.value = ''; 
                 fuelInput.value = '';
             } else {
                 modalTitle.textContent = 'Aracı Düzenle';
@@ -344,25 +345,41 @@
                 plateInput.value = vehicle.plate;
                 departmentInput.value = vehicle.department;
                 driverInput.value = vehicle.driver;
-                
-                // Yeni alanları doldur
                 typeInput.value = vehicle.type || '';
                 fuelInput.value = vehicle.fuel || '';
                 mileageInput.value = vehicle.mileage || 0;
             }
         }
 
-        // Modalı gizler
         function closeModal() {
             modal.style.display = 'none';
         }
 
-        // Form gönderimi (Ekle/Düzenle)
         form.addEventListener('submit', (e) => {
             e.preventDefault();
+
+            const requiredInputs = [modelInput, plateInput, departmentInput, driverInput, typeInput, fuelInput];
+            let allValid = true;
+            let firstInvalid = null;
+
+            requiredInputs.forEach(input => {
+                if (input.value.trim() === "") {
+                    allValid = false;
+                    if (!firstInvalid) {
+                        firstInvalid = input;
+                    }
+                }
+            });
+
+            if (!allValid) {
+                if (firstInvalid) {
+                    firstInvalid.reportValidity(); 
+                }
+                return; 
+            }
+            
             const vehicles = getVehicles();
             
-            // Yeni alanları da içeren araç nesnesi
             const newVehicle = {
                 model: modelInput.value,
                 plate: plateInput.value,
@@ -370,35 +387,40 @@
                 driver: driverInput.value,
                 type: typeInput.value,
                 fuel: fuelInput.value,
-                mileage: parseInt(mileageInput.value) || 0 // Sayı olarak kaydet
+                mileage: parseInt(mileageInput.value) || 0 
             };
             
+            let isNewVehicle = !vehicleId.value;
+
             if (vehicleId.value) {
-                // Düzenle
                 const id = parseInt(vehicleId.value);
                 const index = vehicles.findIndex(v => v.id === id);
                 if (index !== -1) {
                     vehicles[index] = { ...vehicles[index], ...newVehicle };
                 }
             } else {
-                // Ekle
                 newVehicle.id = Date.now();
                 vehicles.push(newVehicle);
             }
             
             saveVehicles(vehicles);
             closeModal();
-            applyFilterAndRender(); // Listeyi güncelle
+            
+            if (isNewVehicle) {
+                 const totalPages = Math.ceil(vehicles.length / itemsPerPage);
+                 currentPage = totalPages;
+                 if (totalPages === 0) currentPage = 1; 
+            }
+            
+            applyFilterAndRender(); 
         });
 
-        // Buton event listener'ları (Ekleme/İptal)
         addButton.addEventListener('click', () => openModal('add'));
         cancelButton.addEventListener('click', closeModal);
 
-        // --- 4. Listeyi Yöneten Event Listener'lar ---
+        // --- 5. Listeyi Yöneten Event Listener'lar (Aynı kaldı) ---
 
         function addVehicleEventListeners() {
-            // Düzenle Butonları
             document.querySelectorAll('.edit-btn').forEach(button => {
                 button.onclick = (e) => {
                     const id = parseInt(e.currentTarget.dataset.id);
@@ -409,7 +431,6 @@
                 };
             });
 
-            // Silme Butonları
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.onclick = (e) => {
                     const id = parseInt(e.currentTarget.dataset.id);
@@ -417,22 +438,19 @@
                         let vehicles = getVehicles();
                         vehicles = vehicles.filter(v => v.id !== id);
                         saveVehicles(vehicles);
-                        applyFilterAndRender(); // Listeyi güncelle
+                        applyFilterAndRender();
                     }
                 };
             });
         }
 
-        // --- 5. Arama ve Filtreleme ---
+        // --- 6. Arama ve Filtreleme (Aynı kaldı) ---
 
-        const searchInput = document.getElementById('search-input');
-        
         function applyFilterAndRender() {
             const searchTerm = searchInput.value.toLowerCase().trim();
             const allVehicles = getVehicles();
             
             const filteredVehicles = allVehicles.filter(vehicle => {
-                // Plaka, model, departman, sürücü, TİP veya YAKIT'ta arama yapar
                 return vehicle.model.toLowerCase().includes(searchTerm) ||
                        vehicle.plate.toLowerCase().includes(searchTerm) ||
                        vehicle.department.toLowerCase().includes(searchTerm) ||
@@ -441,30 +459,22 @@
                        (vehicle.fuel && vehicle.fuel.toLowerCase().includes(searchTerm));
             });
             
-            // Sayfa yönetim mantığı
-            if (currentPage * itemsPerPage > filteredVehicles.length && filteredVehicles.length > 0) {
+            if (filteredVehicles.length === 0) {
+                 currentPage = 1;
+            } else if (currentPage > Math.ceil(filteredVehicles.length / itemsPerPage)) {
                  currentPage = Math.ceil(filteredVehicles.length / itemsPerPage);
-            } else if (filteredVehicles.length == 0) {
-                currentPage = 1;
             }
 
             renderVehicles(filteredVehicles);
         }
 
-        // Arama kutusunda değişiklik olduğunda filtrelemeyi uygula
         searchInput.addEventListener('input', () => {
-             currentPage = 1;
+             currentPage = 1; 
              applyFilterAndRender();
         });
-
-        // "Filtrele" butonu (Şimdilik basit bir uyarı veriyor)
-        document.getElementById('filter-button').addEventListener('click', () => {
-            alert('Gelişmiş Filtreleme menüsü açılacak... Şu an arama; Plaka, Model, Çalışan, Departman, Tip ve Yakıt alanlarında çalışıyor.');
-        });
-
-        // --- 6. Ekstra İşlevsellik ---
         
-        // Tema değiştirme
+        // --- 7. Ekstra İşlevsellik (Aynı kaldı) ---
+
         document.getElementById('toggle-dark-mode').addEventListener('click', () => {
             const html = document.documentElement;
             html.classList.toggle('dark');
@@ -474,11 +484,9 @@
             icon.textContent = isDark ? 'light_mode' : 'dark_mode';
         });
 
-        // Kaydedilen temayı yükle
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.classList.add(savedTheme);
         document.querySelector('#toggle-dark-mode .material-symbols-outlined').textContent = savedTheme === 'dark' ? 'light_mode' : 'dark_mode';
-
 
         // --- Başlangıç Yüklemesi ---
         loadInitialData();
