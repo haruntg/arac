@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html class="light" lang="tr">
+<html lang="tr">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Araç Yönetim Paneli - Aktif</title>
+    <title></title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
     <script>
         tailwind.config = {
-            darkMode: "class",
             theme: {
                 extend: {
                     colors: {
                         "primary": "#137fec",
+                        "primary-dark": "#0a5d9e",
                         "background-light": "#f6f7f8",
-                        "background-dark": "#101922",
+                        "text-default": "#0d141b",
                     },
                     fontFamily: {
                         "display": ["Inter", "sans-serif"]
@@ -32,88 +32,96 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
             font-size: 24px;
         }
+        /* İkon boyutu için küçük bir istisna */
+        .material-symbols-outlined.footer-icon {
+             font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 16;
+             font-size: 16px;
+        }
         body {
             min-height: max(884px, 100dvh);
+            background-color: #f6f7f8;
+            color: #0d141b;
         }
-        /* Modal Arka Planı */
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.5);
         }
-        /* Yeni ikon butonları için standart boyut ve görünüm */
         .header-icon-button {
-             /* size-12 (48px) Tailwind'den geliyor */
-            @apply flex size-12 shrink-0 items-center justify-center text-[#0d141b] dark:text-gray-200 hover:text-primary dark:hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20 rounded-full transition-colors;
+            @apply flex size-12 shrink-0 items-center justify-center text-[#0d141b] hover:text-primary hover:bg-primary/10 rounded-full transition-colors;
+        }
+        .list-item-bg {
+            background-color: #f6f7f8;
+        }
+        .search-bg, .input-bg {
+            background-color: #e2e8f0;
+        }
+        .text-default {
+            color: #0d141b;
         }
     </style>
 </head>
-<body class="font-display bg-background-light dark:bg-background-dark">
+<body class="font-display">
 <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
-    <div class="flex items-center p-4 pb-2 justify-between bg-background-light dark:bg-background-dark sticky top-0 z-20 shadow-sm">
+    <div class="flex items-center p-4 pb-2 justify-between bg-background-light sticky top-0 z-20 shadow-sm">
         <div class="flex size-12 shrink-0 items-center justify-center">
-            <span class="material-symbols-outlined text-[#0d141b] dark:text-gray-200">directions_car</span>
+            <span class="material-symbols-outlined text-text-default">directions_car</span>
         </div>
-        <h1 class="text-[#0d141b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1">Araç Yönetim Paneli</h1>
+        <h1 class="text-text-default text-lg font-bold leading-tight tracking-[-0.015em] flex-1">Araç Yönetim Paneli</h1>
         
         <div class="flex items-center gap-1">
-             
             <button id="add-vehicle-button-icon" class="header-icon-button" aria-label="Yeni Araç Ekle">
                 <span class="material-symbols-outlined">add</span>
-            </button>
-            
-            <button id="import-vehicle-button-icon" class="header-icon-button" aria-label="Toplu Yükle (CSV)">
-                <span class="material-symbols-outlined">upload</span>
-            </button>
-
-            <button id="toggle-dark-mode" class="header-icon-button" aria-label="Temayı Değiştir">
-                 <span class="material-symbols-outlined">dark_mode</span>
             </button>
         </div>
     </div>
     
-    <div class="px-4 py-3 sticky top-[68px] bg-background-light dark:bg-background-dark z-10 shadow-sm">
+    <div class="px-4 py-3 sticky top-[68px] bg-background-light z-10 shadow-sm">
         <label class="flex flex-col min-w-40 h-12 w-full">
             <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
-                <div class="text-slate-500 dark:text-slate-400 flex border-none bg-slate-200 dark:bg-slate-700 items-center justify-center pl-4 rounded-l-lg border-r-0">
+                <div class="text-slate-500 flex border-none bg-slate-200 items-center justify-center pl-4 rounded-l-lg border-r-0">
                     <span class="material-symbols-outlined">search</span>
                 </div>
-                <input id="search-input" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-[#0d141b] dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-200 dark:bg-slate-700 focus:border-none h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 pl-2 text-base font-normal leading-normal" placeholder="Plaka, model, tip veya çalışan ara..."/>
+                <input id="search-input" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-default focus:outline-0 focus:ring-0 border-none bg-slate-200 focus:border-none h-full placeholder:text-slate-500 px-4 pl-2 text-base font-normal leading-normal" placeholder="Plaka, model, tip veya çalışan ara..."/>
             </div>
         </label>
     </div>
     
-    <h3 class="text-[#0d141b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Tüm Araçlar</h3>
+    <h3 class="text-text-default text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Tüm Araçlar</h3>
     
     <div id="vehicle-list">
     </div>
     
     <div id="empty-state" class="hidden text-center p-8">
-        <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-6xl mb-4">no_crash</span>
-        <p class="text-slate-500 dark:text-slate-400">Gösterilecek araç bulunamadı.</p>
+        <span class="material-symbols-outlined text-slate-500 text-6xl mb-4">no_crash</span>
+        <p class="text-slate-500">Gösterilecek araç bulunamadı.</p>
     </div>
 
-    <div id="pagination" class="flex items-center justify-center p-6 gap-2">
-    </div>
+    <div id="pagination" class="hidden"></div>
 </div>
 
+<footer class="text-center py-4 text-xs bg-background-light border-t border-slate-200 mt-auto flex items-center justify-center gap-2 text-slate-500">
+    <span class="material-symbols-outlined !text-[16px]">handshake</span>
+  Bu proje, <span class="text-red-500 font-semibold">Açık Kaynak</span>kodlu olarak geliştirilmiştir. 2025
+</footer>
+
 <div id="vehicle-modal" class="fixed inset-0 hidden items-center justify-center z-50 modal-backdrop">
-    <div class="bg-background-light dark:bg-background-dark rounded-lg shadow-xl w-full max-w-md p-6 m-4">
-        <h3 id="modal-title" class="text-xl font-bold mb-4 text-[#0d141b] dark:text-white">Yeni Araç Ekle</h3>
+    <div class="bg-background-light rounded-lg shadow-xl w-full max-w-md p-6 m-4">
+        <h3 id="modal-title" class="text-xl font-bold mb-4 text-text-default">Yeni Araç Ekle</h3>
         <form id="vehicle-form">
             <input type="hidden" id="vehicle-id">
             
             <div class="mb-4">
-                <label for="model" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Model Adı (Örn: Ford Focus)</label>
-                <input type="text" id="model" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                <label for="model" class="block text-sm font-medium text-slate-700">Model Adı (Örn: Ford Focus)</label>
+                <input type="text" id="model" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary text-text-default border-slate-300">
             </div>
             
             <div class="mb-4">
-                <label for="plate" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Plaka (Örn: 34 ABC 123)</label>
-                <input type="text" id="plate" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                <label for="plate" class="block text-sm font-medium text-slate-700">Plaka (Örn: 34 ABC 123)</label>
+                <input type="text" id="plate" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary text-text-default border-slate-300">
             </div>
 
             <div class="mb-4">
-                <label for="type" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Araç Tipi</label>
-                <select id="type" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                <label for="type" class="block text-sm font-medium text-slate-700">Araç Tipi</label>
+                <select id="type" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary text-text-default border-slate-300">
                     <option value="">Seçiniz</option>
                     <option value="Sedan">Sedan</option>
                     <option value="Hatchback">Hatchback</option>
@@ -124,8 +132,8 @@
             </div>
 
             <div class="mb-4">
-                <label for="fuel" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Yakıt Tipi</label>
-                <select id="fuel" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                <label for="fuel" class="block text-sm font-medium text-slate-700">Yakıt Tipi</label>
+                <select id="fuel" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary text-text-default border-slate-300">
                     <option value="">Seçiniz</option>
                     <option value="Benzin">Benzin</option>
                     <option value="Dizel">Dizel</option>
@@ -136,22 +144,27 @@
             </div>
             
             <div class="mb-4">
-                <label for="department" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Departman (Örn: Pazarlama)</label>
-                <input type="text" id="department" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                <label for="department" class="block text-sm font-medium text-slate-700">Departman (Örn: Pazarlama)</label>
+                <input type="text" id="department" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary text-text-default border-slate-300">
             </div>
             
             <div class="mb-4">
-                <label for="driver" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Sürücü/Çalışan (Örn: Ahmet Yılmaz)</label>
-                <input type="text" id="driver" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                <label for="driver" class="block text-sm font-medium text-slate-700">Sürücü/Çalışan (Örn: Ahmet Yılmaz)</label>
+                <input type="text" id="driver" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary text-text-default border-slate-300">
+            </div>
+
+            <div class="mb-4">
+                <label for="insurance_end_date" class="block text-sm font-medium text-slate-700">Kasko Bitiş Tarihi</label>
+                <input type="date" id="insurance_end_date" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary text-text-default border-slate-300">
             </div>
 
             <div class="mb-6">
-                <label for="mileage" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Kilometre (km)</label>
-                <input type="number" id="mileage" min="0" value="0" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                <label for="mileage" class="block text-sm font-medium text-slate-700">Kilometre (km)</label>
+                <input type="number" id="mileage" min="0" value="0" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-primary focus:ring-primary text-text-default border-slate-300">
             </div>
             
             <div class="flex justify-end gap-3">
-                <button type="button" id="cancel-modal" class="px-4 py-2 text-sm font-bold rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">İptal</button>
+                <button type="button" id="cancel-modal" class="px-4 py-2 text-sm font-bold rounded-lg text-slate-700 hover:bg-slate-200">İptal</button>
                 <button type="submit" id="save-vehicle" class="px-4 py-2 text-sm font-bold rounded-lg bg-primary text-white hover:bg-primary/90">Kaydet</button>
             </div>
         </form>
@@ -160,12 +173,11 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- 1. Sabitler ve Elementler (GÜNCELLENDİ) ---
+        // --- 1. Sabitler ve Elementler ---
         const VEHICLE_STORAGE_KEY = 'vehicle_management_data';
 
         const vehicleListContainer = document.getElementById('vehicle-list');
         const emptyState = document.getElementById('empty-state');
-        const paginationContainer = document.getElementById('pagination');
         
         const modal = document.getElementById('vehicle-modal');
         const form = document.getElementById('vehicle-form');
@@ -179,18 +191,14 @@
         const driverInput = document.getElementById('driver');
         const typeInput = document.getElementById('type');
         const fuelInput = document.getElementById('fuel');
+        const insuranceEndDateInput = document.getElementById('insurance_end_date'); 
         const mileageInput = document.getElementById('mileage');
         
-        // **GÜNCELLENMİŞ Butonlar:** Yeni ikonlu butonların ID'leri kullanılıyor
         const addButton = document.getElementById('add-vehicle-button-icon');
-        const importButton = document.getElementById('import-vehicle-button-icon'); 
         const cancelButton = document.getElementById('cancel-modal');
         const searchInput = document.getElementById('search-input'); 
 
-        let currentPage = 1;
-        const itemsPerPage = 100;
-
-        // --- 2. Veri Yönetimi (LocalStorage) (Aynı kaldı) ---
+        // --- 2. Veri Yönetimi (LocalStorage) ---
 
         function loadInitialData() {
             const data = localStorage.getItem(VEHICLE_STORAGE_KEY);
@@ -200,16 +208,16 @@
             }
             
             const initialVehicles = [
-                { id: Date.now(), model: 'Ford Focus', plate: '34 ABC 123', department: 'Pazarlama', driver: 'Ahmet Yılmaz', type: 'Sedan', fuel: 'Benzin', mileage: 25000 },
-                { id: Date.now() + 1, model: 'Renault Clio', plate: '34 DEF 456', department: 'Satış', driver: 'Zeynep Kaya', type: 'Hatchback', fuel: 'Dizel', mileage: 15000 },
-                { id: Date.now() + 2, model: 'VW Passat', plate: '34 GHI 789', department: 'Yönetim', driver: 'Can Öztürk', type: 'Sedan', fuel: 'Hibrit', mileage: 5000 },
-                { id: Date.now() + 3, model: 'Fiat Egea', plate: '34 JKL 012', department: 'Teknik Servis', driver: 'Elif Sönmez', type: 'Sedan', fuel: 'LPG', mileage: 45000 },
-                { id: Date.now() + 4, model: 'Nissan Qashqai', plate: '34 MNO 567', department: 'Satış', driver: 'Burak Demir', type: 'SUV', fuel: 'Dizel', mileage: 32000 },
-                { id: Date.now() + 5, model: 'Opel Astra', plate: '06 XYZ 999', department: 'Muhasebe', driver: 'Ayşe Çelik', type: 'Hatchback', fuel: 'Benzin', mileage: 18000 },
-                { id: Date.now() + 6, model: 'Peugeot 3008', plate: '16 AB 500', department: 'İnsan Kaynakları', driver: 'Mehmet Yücel', type: 'SUV', fuel: 'Dizel', mileage: 12000 },
-                { id: Date.now() + 7, model: 'Honda Civic', plate: '41 CDE 101', department: 'Pazarlama', driver: 'Gizem Aydın', type: 'Sedan', fuel: 'Hibrit', mileage: 8000 },
-                { id: Date.now() + 8, model: 'Toyota Corolla', plate: '35 FGH 202', department: 'Yönetim', driver: 'Ali Veli', type: 'Sedan', fuel: 'LPG', mileage: 60000 },
-                { id: Date.now() + 9, model: 'Hyundai i20', plate: '01 JKL 303', department: 'Satış', driver: 'Deniz Aktaş', type: 'Hatchback', fuel: 'Benzin', mileage: 22000 },
+                { id: Date.now(), model: 'Ford Focus', plate: '34 ABC 123', department: 'Pazarlama', driver: 'Ahmet Yılmaz', type: 'Sedan', fuel: 'Benzin', mileage: 25000, insurance_end_date: '2025-10-01' },
+                { id: Date.now() + 1, model: 'Renault Clio', plate: '34 DEF 456', department: 'Satış', driver: 'Zeynep Kaya', type: 'Hatchback', fuel: 'Dizel', mileage: 15000, insurance_end_date: '2024-12-31' },
+                { id: Date.now() + 2, model: 'VW Passat', plate: '34 GHI 789', department: 'Yönetim', driver: 'Can Öztürk', type: 'Sedan', fuel: 'Hibrit', mileage: 5000, insurance_end_date: '2026-06-15' },
+                { id: Date.now() + 3, model: 'Fiat Egea', plate: '34 JKL 012', department: 'Teknik Servis', driver: 'Elif Sönmez', type: 'Sedan', fuel: 'LPG', mileage: 45000, insurance_end_date: '2025-01-20' },
+                { id: Date.now() + 4, model: 'Nissan Qashqai', plate: '34 MNO 567', department: 'Satış', driver: 'Burak Demir', type: 'SUV', fuel: 'Dizel', mileage: 32000, insurance_end_date: '2025-03-05' },
+                { id: Date.now() + 5, model: 'Opel Astra', plate: '06 XYZ 999', department: 'Muhasebe', driver: 'Ayşe Çelik', type: 'Hatchback', fuel: 'Benzin', mileage: 18000, insurance_end_date: '2026-09-10' },
+                { id: Date.now() + 6, model: 'Peugeot 3008', plate: '16 AB 500', department: 'İnsan Kaynakları', driver: 'Mehmet Yücel', type: 'SUV', fuel: 'Dizel', mileage: 12000, insurance_end_date: '2024-11-01' },
+                { id: Date.now() + 7, model: 'Honda Civic', plate: '41 CDE 101', department: 'Pazarlama', driver: 'Gizem Aydın', type: 'Sedan', fuel: 'Hibrit', mileage: 8000, insurance_end_date: '2025-07-28' },
+                { id: Date.now() + 8, model: 'Toyota Corolla', plate: '35 FGH 202', department: 'Yönetim', driver: 'Ali Veli', type: 'Sedan', fuel: 'LPG', mileage: 60000, insurance_end_date: '2025-04-18' },
+                { id: Date.now() + 9, model: 'Hyundai i20', plate: '01 JKL 303', department: 'Satış', driver: 'Deniz Aktaş', type: 'Hatchback', fuel: 'Benzin', mileage: 22000, insurance_end_date: '2026-02-29' },
             ];
 
             localStorage.setItem(VEHICLE_STORAGE_KEY, JSON.stringify(initialVehicles));
@@ -223,29 +231,34 @@
             localStorage.setItem(VEHICLE_STORAGE_KEY, JSON.stringify(vehicles));
         }
 
-        // --- 3. Çizim Fonksiyonları (Aynı kaldı) ---
+        // --- 3. Çizim Fonksiyonları ---
 
         function createVehicleListItem(vehicle) {
             const div = document.createElement('div');
-            div.className = 'flex gap-4 bg-background-light dark:bg-background-dark px-4 py-3 justify-between items-center border-b border-slate-200 dark:border-slate-700';
+            div.className = 'flex gap-4 bg-background-light px-4 py-3 justify-between items-center border-b border-slate-200';
+            
+            const insuranceDateStr = vehicle.insurance_end_date 
+                                     ? new Date(vehicle.insurance_end_date).toLocaleDateString('tr-TR', { year: 'numeric', month: 'short', day: 'numeric' })
+                                     : 'Tarih Yok';
+
             div.innerHTML = `
                 <div class="flex items-center gap-4">
-                    <div class="text-[#0d141b] dark:text-white flex items-center justify-center rounded-lg bg-slate-200 dark:bg-slate-700 shrink-0 size-12">
+                    <div class="text-[#0d141b] flex items-center justify-center rounded-lg bg-slate-200 shrink-0 size-12">
                         <span class="material-symbols-outlined">directions_car</span>
                     </div>
                     <div class="flex flex-1 flex-col justify-center">
-                        <p class="text-[#0d141b] dark:text-white text-base font-medium leading-normal">${vehicle.model} <span class="text-slate-500 dark:text-slate-400 text-sm">(${vehicle.type})</span></p>
-                        <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">${vehicle.department} - ${vehicle.driver}</p>
-                        <p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-normal">
-                            Plaka: ${vehicle.plate} • Yakıt: ${vehicle.fuel} • Km: ${vehicle.mileage.toLocaleString('tr-TR')}
+                        <p class="text-[#0d141b] text-base font-medium leading-normal">${vehicle.model} <span class="text-slate-500 text-sm">(${vehicle.type})</span></p>
+                        <p class="text-slate-500 text-sm font-normal leading-normal">${vehicle.department} - ${vehicle.driver}</p>
+                        <p class="text-slate-500 text-xs font-normal leading-normal">
+                            Plaka: ${vehicle.plate} • Yakıt: ${vehicle.fuel} • Km: ${vehicle.mileage.toLocaleString('tr-TR')} • Kasko Bitiş: **${insuranceDateStr}**
                         </p>
                     </div>
                 </div>
                 <div class="flex shrink-0 gap-2">
-                    <button data-id="${vehicle.id}" class="edit-btn text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary flex size-9 items-center justify-center rounded-full hover:bg-primary/10 dark:hover:bg-primary/20">
+                    <button data-id="${vehicle.id}" class="edit-btn text-slate-500 hover:text-primary flex size-9 items-center justify-center rounded-full hover:bg-primary/10">
                         <span class="material-symbols-outlined !text-[20px]">edit</span>
                     </button>
-                    <button data-id="${vehicle.id}" class="delete-btn text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-500 flex size-9 items-center justify-center rounded-full hover:bg-red-500/10 dark:hover:bg-red-500/20">
+                    <button data-id="${vehicle.id}" class="delete-btn text-slate-500 hover:text-red-500 flex size-9 items-center justify-center rounded-full hover:bg-red-500/10">
                         <span class="material-symbols-outlined !text-[20px]">delete</span>
                     </button>
                 </div>
@@ -258,78 +271,19 @@
             
             if (vehicles.length === 0) {
                 emptyState.classList.remove('hidden');
-                renderPagination(0);
                 return;
             }
 
             emptyState.classList.add('hidden');
             
-            const totalPages = Math.ceil(vehicles.length / itemsPerPage);
-            
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const vehiclesOnPage = vehicles.slice(startIndex, endIndex);
-
-            vehiclesOnPage.forEach(vehicle => {
+            vehicles.forEach(vehicle => {
                 vehicleListContainer.appendChild(createVehicleListItem(vehicle));
             });
 
             addVehicleEventListeners();
-            renderPagination(totalPages);
         }
 
-        function renderPagination(totalPages) {
-            paginationContainer.innerHTML = '';
-            if (totalPages <= 1) return; 
-            
-            const prevButton = createPaginationButton('chevron_left', currentPage > 1);
-            prevButton.onclick = () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    applyFilterAndRender();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            };
-            paginationContainer.appendChild(prevButton);
-
-            for (let i = 1; i <= totalPages; i++) {
-                const button = createPaginationButton(i, true, i === currentPage);
-                button.onclick = () => {
-                    currentPage = i;
-                    applyFilterAndRender();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                };
-                paginationContainer.appendChild(button);
-            }
-
-            const nextButton = createPaginationButton('chevron_right', currentPage < totalPages);
-            nextButton.onclick = () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    applyFilterAndRender();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            };
-            paginationContainer.appendChild(nextButton);
-        }
-
-        function createPaginationButton(content, isEnabled, isActive = false) {
-            const button = document.createElement('button');
-            button.className = `flex size-9 items-center justify-center rounded-lg font-bold text-sm ${
-                isActive ? 'bg-primary text-white' : 
-                isEnabled ? 'text-slate-500 dark:text-slate-400 hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary dark:hover:text-primary' : 
-                'text-slate-300 dark:text-slate-600 cursor-not-allowed'
-            }`;
-            if (content.startsWith('chevron')) {
-                button.innerHTML = `<span class="material-symbols-outlined !text-[20px]">${content}</span>`;
-            } else {
-                button.textContent = content;
-            }
-            button.disabled = !isEnabled; 
-            return button;
-        }
-
-        // --- 4. Modal ve Form Yönetimi (Aynı kaldı) ---
+        // --- 4. Modal ve Form Yönetimi ---
 
         function openModal(mode = 'add', vehicle = null) {
             form.reset(); 
@@ -341,9 +295,10 @@
                 mileageInput.value = 0;
                 typeInput.value = ''; 
                 fuelInput.value = '';
+                insuranceEndDateInput.value = ''; 
             } else {
                 modalTitle.textContent = 'Aracı Düzenle';
-                vehicleId.value = vehicle.id;
+                vehicleId.value = vehicle.id; 
                 modelInput.value = vehicle.model;
                 plateInput.value = vehicle.plate;
                 departmentInput.value = vehicle.department;
@@ -351,6 +306,7 @@
                 typeInput.value = vehicle.type || '';
                 fuelInput.value = vehicle.fuel || '';
                 mileageInput.value = vehicle.mileage || 0;
+                insuranceEndDateInput.value = vehicle.insurance_end_date || '';
             }
         }
 
@@ -390,16 +346,15 @@
                 driver: driverInput.value,
                 type: typeInput.value,
                 fuel: fuelInput.value,
+                insurance_end_date: insuranceEndDateInput.value,
                 mileage: parseInt(mileageInput.value) || 0 
             };
             
-            let isNewVehicle = !vehicleId.value;
-
             if (vehicleId.value) {
-                const id = parseInt(vehicleId.value);
+                const id = Number(vehicleId.value); 
                 const index = vehicles.findIndex(v => v.id === id);
                 if (index !== -1) {
-                    vehicles[index] = { ...vehicles[index], ...newVehicle };
+                    vehicles[index] = { ...vehicles[index], ...newVehicle, id: id };
                 }
             } else {
                 newVehicle.id = Date.now();
@@ -408,101 +363,18 @@
             
             saveVehicles(vehicles);
             closeModal();
-            
-            if (isNewVehicle) {
-                 const totalPages = Math.ceil(vehicles.length / itemsPerPage);
-                 currentPage = totalPages;
-                 if (totalPages === 0) currentPage = 1; 
-            }
-            
             applyFilterAndRender(); 
         });
 
-        // **GÜNCELLENMİŞ Buton olayları:** Yeni buton ID'leri kullanılır
         addButton.addEventListener('click', () => openModal('add'));
-        importButton.addEventListener('click', () => {
-             // Kullanıcının dosya seçmesi için bir dosya girdisi oluşturulur
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.csv';
-            fileInput.click();
-
-            fileInput.onchange = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-
-                reader.onload = function(event) {
-                    const csvData = event.target.result;
-                    try {
-                        const newVehicles = parseCSV(csvData);
-
-                        if (newVehicles.length === 0) {
-                            alert('CSV dosyası boş veya okunamadı.');
-                            return;
-                        }
-
-                        if (confirm(`${newVehicles.length} adet yeni araç sisteme eklenecektir. Onaylıyor musunuz?`)) {
-                            let existingVehicles = getVehicles();
-                            let vehiclesToAdd = [];
-                            let importCount = 0;
-                            let errorCount = 0;
-
-                            newVehicles.forEach(v => {
-                                // Basit bir doğrulama: Plaka ve Model gibi temel alanlar dolu mu?
-                                const isComplete = v.model && v.plate;
-                                
-                                if (isComplete) {
-                                    vehiclesToAdd.push({
-                                        id: Date.now() + vehiclesToAdd.length + Math.random(), // Benzersiz ID oluştur
-                                        model: v.model,
-                                        plate: v.plate,
-                                        department: v.department || 'Bilinmiyor',
-                                        driver: v.driver || 'Atanmamış',
-                                        type: v.type || 'Bilinmiyor',
-                                        fuel: v.fuel || 'Bilinmiyor',
-                                        mileage: parseInt(v.mileage) || 0 // Kilometreyi sayıya çevir
-                                    });
-                                    importCount++;
-                                } else {
-                                    errorCount++;
-                                }
-                            });
-
-                            // Var olan araçlara yeni araçları ekle
-                            existingVehicles = existingVehicles.concat(vehiclesToAdd);
-                            saveVehicles(existingVehicles);
-                            
-                            // Son sayfaya git ve listeyi güncelle
-                            const totalPages = Math.ceil(existingVehicles.length / itemsPerPage);
-                            currentPage = totalPages > 0 ? totalPages : 1; 
-                            applyFilterAndRender();
-
-                            let message = `${importCount} araç başarıyla yüklendi!`;
-                            if(errorCount > 0) {
-                                message += ` (${errorCount} satır eksik veri nedeniyle atlandı.)`;
-                            }
-                            alert(message);
-                        }
-                    } catch (error) {
-                        console.error("CSV okuma hatası:", error);
-                        alert(`Dosya formatında bir hata var: ${error.message}. Lütfen şu başlıkları kullanın: ${requiredFields.join(', ')}`);
-                    }
-                };
-
-                reader.readAsText(file);
-            };
-        });
-
         cancelButton.addEventListener('click', closeModal);
 
-        // --- 5. Listeyi Yöneten Event Listener'lar (Aynı kaldı) ---
+        // --- 5. Listeyi Yöneten Event Listener'lar ---
 
         function addVehicleEventListeners() {
             document.querySelectorAll('.edit-btn').forEach(button => {
                 button.onclick = (e) => {
-                    const id = parseInt(e.currentTarget.dataset.id);
+                    const id = Number(e.currentTarget.dataset.id);
                     const vehicle = getVehicles().find(v => v.id === id);
                     if (vehicle) {
                         openModal('edit', vehicle);
@@ -512,18 +384,20 @@
 
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.onclick = (e) => {
-                    const id = parseInt(e.currentTarget.dataset.id);
+                    const id = Number(e.currentTarget.dataset.id);
+                    
                     if (confirm('Bu aracı silmek istediğinizden emin misiniz?')) {
                         let vehicles = getVehicles();
-                        vehicles = vehicles.filter(v => v.id !== id);
+                        vehicles = vehicles.filter(v => Number(v.id) !== id); 
                         saveVehicles(vehicles);
-                        applyFilterAndRender();
+                        
+                        applyFilterAndRender(); 
                     }
                 };
             });
         }
 
-        // --- 6. Arama ve Filtreleme (Aynı kaldı) ---
+        // --- 6. Arama ve Filtreleme ---
 
         function applyFilterAndRender() {
             const searchTerm = searchInput.value.toLowerCase().trim();
@@ -538,85 +412,13 @@
                        (vehicle.fuel && vehicle.fuel.toLowerCase().includes(searchTerm));
             });
             
-            if (filteredVehicles.length === 0) {
-                 currentPage = 1;
-            } else if (currentPage > Math.ceil(filteredVehicles.length / itemsPerPage)) {
-                 currentPage = Math.ceil(filteredVehicles.length / itemsPerPage);
-            }
-
             renderVehicles(filteredVehicles);
         }
 
         searchInput.addEventListener('input', () => {
-             currentPage = 1; 
              applyFilterAndRender();
         });
         
-        // --- 7. Ekstra İşlevsellik (Aynı kaldı) ---
-
-        document.getElementById('toggle-dark-mode').addEventListener('click', () => {
-            const html = document.documentElement;
-            html.classList.toggle('dark');
-            const isDark = html.classList.contains('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            const icon = document.querySelector('#toggle-dark-mode .material-symbols-outlined');
-            icon.textContent = isDark ? 'light_mode' : 'dark_mode';
-        });
-
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.classList.add(savedTheme);
-        document.querySelector('#toggle-dark-mode .material-symbols-outlined').textContent = savedTheme === 'dark' ? 'light_mode' : 'dark_mode';
-
-
-        // ====================================================================
-        // --- 8. CSV TOPLU YÜKLEME İŞLEVSELLİĞİ (Aynı kaldı) ---
-        // ====================================================================
-
-        // Gerekli alanların (sütun başlıklarının) listesi. CSV'nizdeki başlıklar buna uymalıdır.
-        const requiredFields = ['model', 'plate', 'department', 'driver', 'type', 'fuel', 'mileage'];
-
-
-        /**
-         * Basit bir CSV çözümleyicisi (parser). İlk satırın başlık olduğunu varsayar.
-         */
-        function parseCSV(csv) {
-            const lines = csv.split('\n').filter(line => line.trim() !== '');
-            if (lines.length < 1) return [];
-
-            // Virgüle ve tırnak işaretlerine duyarlı başlık ayrıştırması
-            // Regex: ("([^"]*)"|([^,]*))(?:$|,)/g
-            // Bu, tırnak içindeki verileri ve virgüle kadar olanları yakalar
-            const headersMatch = lines[0].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-            if (!headersMatch) throw new Error("Başlık satırı okunamadı veya boş.");
-            
-            const headers = headersMatch.map(h => h.replace(/^"|"$/g, '').trim().toLowerCase());
-            
-            const data = [];
-
-            // Gerekli başlık kontrolü
-            const missingHeaders = requiredFields.filter(field => !headers.includes(field));
-            if (missingHeaders.length > 0) {
-                throw new Error(`Eksik Sütun Başlıkları: ${missingHeaders.join(', ')}`);
-            }
-
-            for (let i = 1; i < lines.length; i++) {
-                // Virgüle ve tırnak işaretlerine duyarlı satır ayrıştırması
-                const values = lines[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-                if (!values) continue;
-                
-                let obj = {};
-
-                headers.forEach((header, index) => {
-                    let value = values[index] ? values[index].replace(/^"|"$/g, '').trim() : ''; 
-                    obj[header] = value;
-                });
-
-                data.push(obj);
-            }
-            return data;
-        }
-
-
         // --- Başlangıç Yüklemesi ---
         loadInitialData();
         applyFilterAndRender();
